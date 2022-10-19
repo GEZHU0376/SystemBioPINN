@@ -1,5 +1,5 @@
 """
-@author: jpzxshi
+@author: CRUNCH Lab
 """
 from . import nn
 from .brain import Brain
