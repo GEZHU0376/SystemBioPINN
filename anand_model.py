@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Mar 29 16:33:17 2021
-@author: G
+@author: zen
 """
 
 ## Required import statements for program functionality.
@@ -23,15 +23,23 @@ class RBCData(ln.Data):
     ## Loads matlab files and normalizes x values.
     def generate(self):
         t = io.loadmat('data/t_1800.mat')['t']  # t step
-        x = io.loadmat('data/Y_1800.mat')['Y'] # output matrix
+        x = io.loadmat('data/Y_1801_34.mat')['Y'] # output matrix
         
         # Add noise
         #noise = np.random.normal(0, 0.05, [297, 15])   # Change to [318, 15] for 180s range
         #x = x + noise
         # Done adding noise
         
-        norm = np.max(x, axis = 0)[None,:] + 1e-8
-        x = x / norm
+       # norm = np.max(x, axis = 0)[None,:] + 1e-8
+        NDM = np.array([0.025, 10.0, 0.005, 10.0, 0.005, 90.0, 90.0, 10.0, 10.0, 170.0,
+                 170.0, 10.0, 10.0, 1400.0, 1400.0, 10.0, 10.0, 10.0, 10.0,
+                  0.7, 0.7, 0.7, 0.7, 0.7, 20.0, 20.0, 10.0, 10.0, 10.0, 7000.0,
+                 7000.0, 2.5, 2.5, 3400.0])
+        NDM = NDM[None,:]
+        x /= NDM
+        #x = np.apply_along_axis(lambda v: v/ np.array(NDM), axis=1, arr=x)
+        print(x[0,:])         
+
         #norm[:,3] = norm[:,3]/10
         #x[:,3] = x[:,3] * 10
         # Add noise attempt 2 
@@ -51,7 +59,7 @@ class RBCData(ln.Data):
         #x = x + noise
         # Done adding noise
         
-        return t, x, norm
+        return t, x, NDM
     
     ## Instantiates the dataset object.
     def __init_data(self):
@@ -191,10 +199,12 @@ def plot(data, net):
     
     # Output factor - ODEs
     # Need double check 
-    name_list = ['TF','VII', 'TF:VII', 'VIIa', 'TF:VIIa', 'IX', 'IXa', 'IXm', 'IXam',
-    'X', 'Xa', 'Xm', 'Xam', 'II', 'IIa', 'IIm', 'IIam', 'PL', 'AP', 'VIII', 'VIIIa', 'VIIIm',
-    'VIIIam', 'IXa:VIIIa', 'V', 'Va', 'Vm', 'Vam', 'Xa:Va', 'I', 'Ia', 'TFPI', 'Xa:TFPI', 'ATIII'] # output pdf format
-    
+    #name_list = ['TF','VII', 'TF:VII', 'VIIa', 'TF:VIIa', 'IX', 'IXa', 'IXm', 'IXam',
+    #'X', 'Xa', 'Xm', 'Xam', 'II', 'IIa', 'IIm', 'IIam', 'PL', 'AP', 'VIII', 'VIIIa', 'VIIIm',
+    #'VIIIam', 'IXa:VIIIa', 'V', 'Va', 'Vm', 'Vam', 'Xa:Va', 'I', 'Ia', 'TFPI', 'Xa:TFPI', 'ATIII'] # output pdf format
+   
+
+    name_list = ['TF', 'TF:VII', 'TF:VIIa', 'X', 'Xa', 'Xm', 'Xam', 'II', 'IIa', 'IIm', 'IIam', 'PL', 'AP','I', 'Ia'] # output pdf format
     plt.figure(figsize=[4.8 * 5, 4.8 * 3])
     for i in range(len(name_list)):
         plt.subplot(3,5,i+1)
@@ -242,7 +252,7 @@ def main():
     activation = 'tanh'  # Standard is tanh
     # training
     lr = 0.001  # 0.001
-    iterations = 50000   # Set to 0 to return to previous model
+    iterations =2000   # Set to 0 to return to previous model
     lbfgs_steps = 1000
     print_every = 1000
     batch_size = None
@@ -344,8 +354,8 @@ def main():
     1, 1, 1, 1, 1e-3, 1e-3, 1, 1, 1, 1]
 
     # 34 coagulation factors - output them all
-    x_index = [0,1,2,3,4,5,6,7,8]
-    #x_index = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+    #x_index = [0,1,2,3,4,5,6,7,8]
+    x_index = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33]
 
     data = RBCData()
     fnn = ln.nn.FNN(2, len(x_initial), depth, width, activation)
